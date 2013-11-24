@@ -1,0 +1,110 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Untitled Document</title>
+<link href="css/styles.css" rel="stylesheet" />
+<script src="js/contentManager.js"></script>
+<script src="js/requestAnimFrame.js"></script>
+<script src="js/balloon.js"></script>
+<script src="js/Gun.js"></script>
+<script src="js/Bullet.js"></script>
+<script type="text/javascript">
+var gun,canvas,redBalloon,greenBalloon,ctx,bullet,drawObj=[],balloons=[],loop,play=true;;
+function init(){
+	canvas=document.getElementById('myCanvas');
+	ctx = canvas.getContext("2d");
+	gun=new Gun(gunImg,0,0,43,118,250,371,43,118,ctx);
+	bullet=new Bullet(bulletImg,0,0,14,23,250,220,14,23,ctx);
+	drawObj.push(gun);
+	
+	redBalloon=new Balloon(balloonImg,0,0,55,74,90,100,55,74,ctx);	
+	greenBalloon=new Balloon(balloonImg,55,0,55,74,160,0,55,74,ctx);
+	yellowBalloon=new Balloon(balloonImg,110,0,55,74,280,100,55,74,ctx);
+	balloons.push(redBalloon)
+	balloons.push(yellowBalloon)
+	balloons.push(greenBalloon)
+	drawGame()
+	//
+	canvas.addEventListener('mousemove',mouseMoveHandler);
+	canvas.addEventListener('mousedown',fire);
+}
+
+function drawGame(){
+	ctx.clearRect(0,0,500,500);
+	loop=window.requestAnimFrame(drawGame);
+	bullet.isHit(balloons);
+	if(bullet.fire && bullet.x<0 || bullet.y<0){
+		removeElemet(drawObj,bullet);
+		bullet.fire=false;
+	}
+	if(!balloons.length && play){
+		play=false;
+		
+		setTimeout(function(){
+		window.cancelRequestAnimFrame(loop);
+		if(confirm("GRATE, Reset the game agine?")){
+			drawObj=[];
+			init();
+			play=true;
+		}else{
+			ctx.clearRect(0,0,500,500);
+			ctx.font="20px Georgia";
+			ctx.fillText("Thank you for playing ",160,250);
+			ctx.font="13px Georgia";
+			ctx.fillText("developed by venkat ",160,270)
+			console.error(ctx);
+		}
+		},150);
+		
+	}
+	for(var i in balloons){
+		balloons[i].draw();
+	}
+	for(var i in drawObj){
+		drawObj[i].draw();
+	}	
+}
+//actions
+function fire(){
+	bullet.fire=true;
+	bullet.x=gun.x;
+	bullet.y=gun.y+140;
+	bullet.angle=gun.rotation;
+	drawObj.push(bullet);
+}
+//evnts
+function mouseMoveHandler(e){
+	var radians=Math.atan2(e.clientY-519,e.clientX-800)
+	var deg=rad2deg(radians)	
+	gun.rotation=deg+180;
+}
+//utils
+function rad2deg(radians){
+	 return (radians/Math.PI)*180
+}
+
+function removeElemet(arr,ele){
+	for(var i in arr){
+		if(ele==arr[i]){
+			arr.splice(i,1);
+		}
+	}
+}
+</script>
+<style>
+#main{
+width:500px;
+height:500px;
+margin:0 auto;
+}
+</style>
+</head>
+
+<body>
+<div id="main">
+<canvas width="500" height="500" id="myCanvas"></canvas>
+
+</div>
+</body>
+</html>
